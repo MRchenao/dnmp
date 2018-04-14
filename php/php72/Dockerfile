@@ -44,7 +44,7 @@ RUN apt-get update \
     && docker-php-ext-install sysvmsg \
     && docker-php-ext-install sysvsem \
     && docker-php-ext-install sysvshm \
-    && docker-php-ext-install opcache
+    && docker-php-ext-install opcache \
     #&& docker-php-ext-install pdo_firebird \
     #&& docker-php-ext-install pdo_dblib \
     #&& docker-php-ext-install pdo_oci \
@@ -59,10 +59,10 @@ RUN apt-get update \
     #&& apt-get install -y libmcrypt-dev \
     #&& docker-php-ext-install mcrypt \
     #&& :\
-    #&& apt-get install -y curl \
-    #&& apt-get install -y libcurl3 \
-    #&& apt-get install -y libcurl4-openssl-dev \
-    #&& docker-php-ext-install curl \
+    && apt-get install -y curl \
+    && apt-get install -y libcurl3 \
+    && apt-get install -y libcurl4-openssl-dev \
+    && docker-php-ext-install curl \
     #&& :\
     #&& apt-get install -y libreadline-dev \
     #&& docker-php-ext-install readline \
@@ -99,7 +99,7 @@ RUN apt-get update \
     #&& docker-php-ext-install ldap \
 
 # Composer
-#RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer \
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer \
 
 # Install extension using pecl
 # Notice: if pecl install get error
@@ -107,18 +107,23 @@ RUN apt-get update \
 # or
 #    `Package "xxx" does not have REST xml available`
 # Please turn on proxy (The proxy IP may be docker host IP or others):
-RUN pear config-set http_proxy http://10.0.75.1:1080
 
-RUN pecl install redis-3.1.4 \
+RUN sudo apt-get install php-dev php-pear autoconf automake libtool  -y
+
+COPY ./redis-3.1.5.tgz /var/www/html/
+RUN curl 'http://pecl.php.net/get/xdebug-2.6.0alpha1.tgz' -o /var/www/html/xdebug-2.6.0alpha1.tgz
+
+#RUN cd /tmp/ \
+#    && tar -xf redis-3.1.4.tgz \
+#    && rm redis-3.1.4.tgz \
+#    && (cd redis-3.1.4 && phpize && ./configure && make && make install) \
+#    && rm -r redis-3.1.4 \
+#    && docker-php-ext-enable redis
+
+RUN pecl install redis-3.1.5.tgz \
+    && rm -rf redis-3.1.5.tgz \
     && docker-php-ext-enable redis \
     && :\
-    && pecl install xdebug-2.6.0alpha1 \
+    && pecl install xdebug-2.6.0alpha1.tgz \
+    && rm -rf xdebug-2.6.0alpha1.tgz \
     && docker-php-ext-enable xdebug \
-    && :\
-    && apt-get install -y libmagickwand-dev \
-    && pecl install imagick-3.4.3 \
-    && docker-php-ext-enable imagick \
-    && :\
-    && apt-get install -y libmemcached-dev zlib1g-dev \
-    && pecl install memcached-3.0.4 \
-    && docker-php-ext-enable memcached
