@@ -108,10 +108,12 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ 
 #    `Package "xxx" does not have REST xml available`
 # Please turn on proxy (The proxy IP may be docker host IP or others):
 
-RUN sudo apt-get install php-dev php-pear autoconf automake libtool  -y
+RUN sudo apt-get install php-dev php-pear autoconf automake libtool pcre make gcc-4.4  -y
 
 COPY ./redis-3.1.5.tgz /var/www/html/
 RUN curl 'http://pecl.php.net/get/xdebug-2.6.0alpha1.tgz' -o /var/www/html/xdebug-2.6.0alpha1.tgz
+RUN curl 'http://pecl.php.net/get/swoole-2.1.3.tgz' -o /var/www/html/swoole-2.1.3.tgz
+
 
 #RUN cd /tmp/ \
 #    && tar -xf redis-3.1.4.tgz \
@@ -127,3 +129,7 @@ RUN pecl install redis-3.1.5.tgz \
     && pecl install xdebug-2.6.0alpha1.tgz \
     && rm -rf xdebug-2.6.0alpha1.tgz \
     && docker-php-ext-enable xdebug \
+    && :\
+    && pecl install swoole-2.1.3.tgz \
+    && rm -rf swoole-2.1.3.tgz \
+    && docker-php-ext-enable swoole \
